@@ -1,0 +1,41 @@
+
+services:
+  cinema-service:
+    build:
+      context: ./movies
+      dockerfile: Dockerfile
+    container_name: cinema
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DJANGO_SETTINGS_MODULE: cinema.settings
+      PYTHONUNBUFFERED: '1'
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: cinema_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    command: python manage.py runserver 0.0.0.0:8000
+
+  db:
+    image: postgres:16
+    container_name: cinema-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cinema_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
