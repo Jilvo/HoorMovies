@@ -22,7 +22,7 @@ class Command(BaseCommand):
             if created:
                 self.stdout.write(self.style.SUCCESS(f"Created genre: {genre.name}"))
         # Create Movies
-        for movie_data in tmdb_client.fetch_popular_movies():
+        for movie_data in tmdb_client.fetch_popular_and_upcoming_movies():
             author_data = tmdb_client.fetch_movie_director(movie_data["id"])
             author_details = (
                 tmdb_client.fetch_director_details(author_data["id"])

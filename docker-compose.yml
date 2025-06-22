@@ -1,10 +1,9 @@
 
 services:
-  cinema-service:
+  cinema:
     build:
       context: ./movies
       dockerfile: Dockerfile
-    container_name: cinema
     ports:
       - "8000:8000"
     depends_on:
@@ -18,11 +17,10 @@ services:
       POSTGRES_DB: cinema_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    command: python manage.py runserver 0.0.0.0:8000
+    command: /bin/bash -c "./scripts/init_cinema.sh && python manage.py runserver 0.0.0.0:8000"
 
   db:
     image: postgres:16
-    container_name: cinema-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -31,11 +29,13 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
     restart: on-failure
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
-      retries: 5
+      retries: 5 
+    
 
 volumes:
   postgres_data:

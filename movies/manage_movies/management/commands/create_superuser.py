@@ -7,6 +7,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--username", required=True, help="superuser login")
+        parser.add_argument("--email", required=True, help="superuser email")
         parser.add_argument("--password", required=True, help="superuser password")
 
     def handle(self, *args, **options):

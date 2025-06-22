@@ -27,6 +27,7 @@ A Django + Django REST Framework application for managing movies, authors and sp
   - [Films](#films)
   - [Spectators](#spectators)
   - [Favorites](#favorites)
+  - [Ratings](#ratings)
 - [Notes](#notes)
 
 ---
@@ -45,7 +46,6 @@ HoorMovies provides:
 ## Prerequisites
 
 - [Docker](https://www.docker.com/get-started) & [Docker Compose](https://docs.docker.com/compose/install/)  
-- (Optional) [Poetry](https://python-poetry.org/) for local Python dependency management  
 
 ---
 
@@ -73,6 +73,7 @@ Copy the example or create your own:
 
 ### Build & Run with Docker Compose
    ```bash
+   chmod +x scripts/init_cinema.sh
    docker-compose up --build -d
    ```
 PostgreSQL and Django services will start
@@ -85,19 +86,21 @@ API available at http://localhost:8000/api/
    poetry run python manage.py migrate
    poetry run python manage.py runserver
    ```
+
 ## Running Tests
    ```bash
    cd movies
    poetry run pytest
    ```
+
 ## Creating a Superuser
 From inside the Docker container or locally:
    ```bash
    python manage.py createsuperuser \
    --username admin \
    --password admin
-
    ```
+
 ## API Endpoints
 All responses are JSON. Protected endpoints require:
 
@@ -155,6 +158,31 @@ OR DRF session login at /api-auth/login/ + cookie
 | POST   | `/api/favorites/{film_id}/add/`    | Add film to favorites (protected)      |
 | POST   | `/api/favorites/{film_id}/remove/` | Remove film from favorites (protected) |
 
+### Ratings
+
+| Method | Endpoint                  | Description                                                     |
+| ------ | ------------------------- | --------------------------------------------------------------- |
+| GET    | `/api/ratings/`           | List all ratings (requires authentication)                      |
+| GET    | `/api/ratings/{id}/`      | Retrieve a single rating by its ID                              |
+| POST   | `/api/ratings/`           | Create or update a rating for a film or an author (upserts)     |
+| PUT    | `/api/ratings/{id}/`      | Replace an existing rating                                      |
+| PATCH  | `/api/ratings/{id}/`      | Partially update an existing rating                             |
+| DELETE | `/api/ratings/{id}/`      | Delete a rating                                                 |
+
+When you `POST` to `/api/ratings/`, if you’ve already rated the same target (same spectator, content_type & object_id), your rating will be updated; otherwise a new one is created.
+
+#### Example: Rate a Film
+   ```bash
+   curl -X POST http://localhost:8000/api/ratings/ \
+   -H "Authorization: Bearer <ACCESS_TOKEN>" \
+   -H "Content-Type: application/json" \
+   -d '{
+      "content_type": "film",
+      "object_id": 42,
+      "score": 5,
+      "comment": "Un chef-d’œuvre !"
+   }'
+   ```
 
 ## Notes
 Anonymous users can perform read-only (GET) operations on authors and films.

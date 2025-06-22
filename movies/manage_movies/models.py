@@ -23,7 +23,7 @@ class Author(models.Model):
         choices=GenderChoices.choices,
         default=GenderChoices.NOT_SPECIFIED,
     )
-    tmdb_id = models.IntegerField(unique=True, null=True, blank=True)
+    tmdb_id = models.BigIntegerField(unique=True, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -52,10 +52,10 @@ class Film(models.Model):
     status = models.CharField(
         max_length=15, choices=StatusChoices.choices, default=StatusChoices.PLANNED
     )
-    budget = models.IntegerField(null=True, blank=True)
-    box_office = models.IntegerField(null=True, blank=True)
+    budget = models.BigIntegerField(null=True, blank=True)
+    box_office = models.BigIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    tmdb_id = models.IntegerField(unique=True, null=True, blank=True)
+    tmdb_id = models.BigIntegerField(unique=True, null=True, blank=True)
     archived = models.BooleanField(default=False, verbose_name="Archived")
     genres = models.ManyToManyField(
         "Genre", related_name="films", blank=True, verbose_name="Genres"
@@ -67,7 +67,7 @@ class Film(models.Model):
 
 class Genre(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    tmdb_id = models.IntegerField(unique=True, null=True, blank=True)
+    tmdb_id = models.BigIntegerField(unique=True, null=True, blank=True)
 
     def __str__(self):
         return self.name
