@@ -1,0 +1,2 @@
+CREATE DATABASE cinema_db;
+GRANT ALL PRIVILEGES ON DATABASE cinema_db TO postgres;
