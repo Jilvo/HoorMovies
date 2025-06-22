@@ -3,44 +3,65 @@ from datetime import date
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Author, Film, Genre, Spectator
+from .models import Author, Film, Genre, Rating, Spectator
 
-# Register your models here.
-
-
-@admin.register(Spectator)
-class SpectatorAdmin(admin.ModelAdmin):
-    """
-    Admin interface for Spectator model.
-    """
-
-    list_display = ("username", "first_name", "last_name", "email", "bio")
-    search_fields = ("username", "first_name", "last_name", "email")
-    list_filter = ("is_staff", "is_active")
+# ——— Inlines —————————————————————————————————————————————————————————————————
 
 
-@admin.register(Film)
-class FilmAdmin(admin.ModelAdmin):
+class FilmInline(admin.TabularInline):
+    """Inline in the Author admin for related films."""
+
+    model = Film
+    fields = ("title", "release_date", "status")
+    extra = 0
+    show_change_link = True
+
+
+class RatingInline(admin.TabularInline):
+    """Inline in the Film admin for related ratings."""
+
+    model = Rating
+    fk_name = "film"
+    fields = ("spectator", "score", "comment")
+    extra = 1
+    autocomplete_fields = ("spectator",)
+
+
+class FavoriteInline(admin.TabularInline):
+    """Inline in the Spectator admin for related favorites."""
+
+    model = Spectator.favorites.through
+    extra = 0
+    verbose_name = "Favori"
+    verbose_name_plural = "Favoris"
+
+
+# ——— Filters ————————————————————————————————————————————————————————————————
+
+
+class HasFilmsFilter(admin.SimpleListFilter):
     """
     Admin interface for Film model.
     """
 
-    list_display = (
-        "title",
-        "release_date",
-        "rating",
-        "show_revenue_in_millions",
-        "author",
-        "status",
-    )
-    search_fields = ("title", "description")
-    list_filter = ("release_date", "rating")
+    title = "With films"
+    parameter_name = "has_films"
 
-    def show_revenue_in_millions(self, obj):
-        """Format the box office revenue in millions."""
-        if obj.box_office:
-            return f"${obj.box_office / 1_000_000:.2f}M"
-        return "N/A"
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", "With at least one film"),
+            ("no", "No film"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(films__isnull=False).distinct()
+        if self.value() == "no":
+            return queryset.filter(films__isnull=True)
+        return queryset
+
+
+# ——— Admin Classes —————————————————————————————————————————————————————
 
 
 @admin.register(Author)
@@ -51,7 +72,8 @@ class AuthorAdmin(admin.ModelAdmin):
 
     list_display = ("name", "age", "gender", "is_alive_display")
     search_fields = ("name",)
-    list_filter = ()
+    list_filter = (HasFilmsFilter,)
+    inlines = [FilmInline]
 
     def age(self, obj):
         """Calculate the age of the author based on their birth date."""
@@ -70,13 +92,48 @@ class AuthorAdmin(admin.ModelAdmin):
     age.short_description = "Age"
 
     def is_alive_display(self, obj):
+        """Display a checkmark if alive, cross if deceased."""
         if obj.death_date is None:
             return format_html("<span>✅</span>")
-        else:
-            return format_html("<span>❌</span>")
+        return format_html("<span>❌</span>")
 
     is_alive_display.short_description = "Alive Status"
     is_alive_display.admin_order_field = "death_date"
+
+
+@admin.register(Film)
+class FilmAdmin(admin.ModelAdmin):
+    """Admin interface for Film model."""
+
+    list_display = (
+        "title",
+        "release_date",
+        "rating",
+        "status",
+        "show_revenue_in_millions",
+    )
+    search_fields = ("title", "description")
+    list_filter = ("created_at", "rating", "status")
+    date_hierarchy = "created_at"
+    inlines = [RatingInline]
+
+    def show_revenue_in_millions(self, obj):
+        """Format the box office revenue in millions of dollars."""
+        if obj.box_office:
+            return f"${obj.box_office / 1_000_000:.2f}M"
+        return "N/A"
+
+    show_revenue_in_millions.short_description = "Box Office (M$)"
+
+
+@admin.register(Spectator)
+class SpectatorAdmin(admin.ModelAdmin):
+    """Admin interface for Spectator model."""
+
+    list_display = ("username", "first_name", "last_name", "email", "bio")
+    search_fields = ("username", "first_name", "last_name", "email")
+    list_filter = ("is_staff", "is_active")
+    inlines = [FavoriteInline]
 
 
 @admin.register(Genre)

@@ -38,3 +38,13 @@
       --username admin \
       --password admin
    ```
+
+5.You can filter movie by status:
+```http://127.0.0.1:8000/api/films/?rating=good&status={status}
+```
+
+
+6.List favorites:
+http://127.0.0.1:8000/api/favorites/
+http://127.0.0.1:8000/api/favorites/{id}/add/
+http://127.0.0.1:8000/api/favorites/{id}/remove/

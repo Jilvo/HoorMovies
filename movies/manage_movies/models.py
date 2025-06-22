@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -32,6 +33,9 @@ class Spectator(AbstractUser):
 
     bio = models.TextField(blank=True)
     avatar = models.ImageField(upload_to="spectator_avatars/", null=True, blank=True)
+    favorites = models.ManyToManyField(
+        "Film", related_name="favorited_by", blank=True, verbose_name="Films favoris"
+    )
 
     def __str__(self):
         return self.get_full_name() or self.username
@@ -39,10 +43,10 @@ class Spectator(AbstractUser):
 
 class Film(models.Model):
     class RatingChoices(models.TextChoices):
-        BAD = "bad", "Bad"
-        AVERAGE = "average", "Average"
-        GOOD = "good", "Good"
-        EXCELLENT = "excellent", "Excellent"
+        BAD = "Bad", "Bad"
+        AVERAGE = "Average", "Average"
+        GOOD = "Good", "Good"
+        EXCELLENT = "Excellent", "Excellent"
 
     class StatusChoices(models.TextChoices):
         PLANNED = "Planned", "Planned"
@@ -75,3 +79,33 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Rating(models.Model):
+    """Model representing a rating given by a spectator to a film."""
+
+    spectator = models.ForeignKey(
+        Spectator,
+        on_delete=models.CASCADE,
+        related_name="ratings",
+        verbose_name="Spectator",
+    )
+    film = models.ForeignKey(
+        Film, on_delete=models.CASCADE, related_name="ratings", verbose_name="Film"
+    )
+    score = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name="Note (1–5)",
+    )
+    comment = models.TextField(blank=True, verbose_name="Comment")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creation date")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Update date")
+
+    class Meta:
+        unique_together = ("spectator", "film")
+        ordering = ["-created_at"]
+        verbose_name = "Notation"
+        verbose_name_plural = "Notations"
+
+    def __str__(self):
+        return f"{self.spectator.username} – {self.score}/5 on « {self.film.title} »"

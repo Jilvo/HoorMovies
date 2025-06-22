@@ -17,18 +17,32 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
-from manage_movies.views import SpectatorViewSet
+from manage_movies.views import (AuthorViewSet, FavoriteViewSet, FilmViewSet,
+                                 SpectatorViewSet)
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 
 router = DefaultRouter()
-# router.register(r'authors', AuthorViewSet, basename='author')
-# router.register(r'films', FilmViewSet, basename='film')
+router.register(r"authors", AuthorViewSet, basename="author")
+router.register(r"films", FilmViewSet, basename="film")
 router.register(r"spectators", SpectatorViewSet, basename="spectator")
 urlpatterns = [
     path("api/", include(router.urls)),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("admin/", admin.site.urls),
+    path(
+        "api/favorites/", FavoriteViewSet.as_view({"get": "list"}), name="favorite-list"
+    ),
+    path(
+        "api/favorites/<int:pk>/add/",
+        FavoriteViewSet.as_view({"post": "add"}),
+        name="favorite-add",
+    ),
+    path(
+        "api/favorites/<int:pk>/remove/",
+        FavoriteViewSet.as_view({"post": "remove"}),
+        name="favorite-remove",
+    ),
 ]
