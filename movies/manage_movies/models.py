@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser
+from accounts.models import Spectator
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -24,21 +24,6 @@ class Author(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class Spectator(AbstractUser):
-    class Meta:
-        verbose_name = "Spectator"
-        verbose_name_plural = "Spectators"
-
-    bio = models.TextField(blank=True)
-    avatar = models.ImageField(upload_to="spectator_avatars/", null=True, blank=True)
-    favorites = models.ManyToManyField(
-        "Film", related_name="favorited_by", blank=True, verbose_name="Films favoris"
-    )
-
-    def __str__(self):
-        return self.get_full_name() or self.username
 
 
 class Film(models.Model):

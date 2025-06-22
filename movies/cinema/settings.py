@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "accounts",
     "manage_movies",
 ]
 
@@ -149,9 +150,11 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ),
 }
-AUTH_USER_MODEL = "manage_movies.Spectator"
+AUTH_USER_MODEL = "accounts.Spectator"
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=59),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+
+LOGIN_REDIRECT_URL = "/api/"

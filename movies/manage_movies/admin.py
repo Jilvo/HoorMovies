@@ -3,7 +3,7 @@ from datetime import date
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Author, Film, Genre, Rating, Spectator
+from .models import Author, Film, Genre, Rating
 
 # ——— Inlines —————————————————————————————————————————————————————————————————
 
@@ -25,15 +25,6 @@ class RatingInline(admin.TabularInline):
     fields = ("spectator", "score", "comment")
     extra = 1
     autocomplete_fields = ("spectator",)
-
-
-class FavoriteInline(admin.TabularInline):
-    """Inline in the Spectator admin for related favorites."""
-
-    model = Spectator.favorites.through
-    extra = 0
-    verbose_name = "Favori"
-    verbose_name_plural = "Favoris"
 
 
 # ——— Filters ————————————————————————————————————————————————————————————————
@@ -124,16 +115,6 @@ class FilmAdmin(admin.ModelAdmin):
         return "N/A"
 
     show_revenue_in_millions.short_description = "Box Office (M$)"
-
-
-@admin.register(Spectator)
-class SpectatorAdmin(admin.ModelAdmin):
-    """Admin interface for Spectator model."""
-
-    list_display = ("username", "first_name", "last_name", "email", "bio")
-    search_fields = ("username", "first_name", "last_name", "email")
-    list_filter = ("is_staff", "is_active")
-    inlines = [FavoriteInline]
 
 
 @admin.register(Genre)

@@ -1,6 +1,6 @@
 from django.db.models import Count
 from django.utils.dateparse import parse_date
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -17,7 +17,7 @@ class SpectatorViewSet(viewsets.ModelViewSet):
 
     queryset = Spectator.objects.all()
     serializer_class = SpectatorSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
     http_method_names = ["get", "post", "patch", "delete"]
 
 
@@ -28,7 +28,7 @@ class FilmViewSet(viewsets.ModelViewSet):
 
     queryset = Film.objects.all()
     serializer_class = FilmSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     http_method_names = ["get", "post", "patch", "delete"]
 
     def get_queryset(self):
@@ -54,7 +54,11 @@ class FilmViewSet(viewsets.ModelViewSet):
         status = params.get("status")
         if status in {choice.value for choice in Film.StatusChoices}:
             qs = qs.filter(status=status)
-
+        source = self.request.query_params.get("source")
+        if source == "admin":
+            qs = qs.filter(tmdb_id__isnull=True)
+        elif source == "tmdb":
+            qs = qs.filter(tmdb_id__isnull=False)
         return qs
 
 
@@ -68,7 +72,14 @@ class AuthorViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     http_method_names = ["get", "post", "patch", "delete"]
 
+    def get_permissions(self):
+        """Determine permissions based on the action being performed."""
+        if self.action == "destroy":
+            return [IsAuthenticated()]
+        return [IsAuthenticatedOrReadOnly()]
+
     def get_queryset(self):
+        """Retrieve authors with optional filtering by film count and source."""
         qs = Author.objects.annotate(film_count=Count("films"))
         has = self.request.query_params.get("has_films")
         if has is not None:
@@ -77,13 +88,27 @@ class AuthorViewSet(viewsets.ModelViewSet):
                 qs = qs.filter(film_count__gt=0)
             elif val in ("false", "0"):
                 qs = qs.filter(film_count__exact=0)
+        source = self.request.query_params.get("source")
+        if source == "admin":
+            qs = qs.filter(tmdb_id__isnull=True)
+        elif source == "tmdb":
+            qs = qs.filter(tmdb_id__isnull=False)
         return qs
+
+    def destroy(self, request, *args, **kwargs):
+        """Override destroy to prevent deletion if the author has associated films."""
+        author = self.get_object()
+        if author.films.exists():
+            return Response(
+                {"detail": "Cannot delete author with associated films."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return super().destroy(request, *args, **kwargs)
 
 
 class FavoriteViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods=["get"])
     def list(self, request):
         favorites = request.user.favorites.all()
         serializer = FilmSerializer(favorites, many=True)
@@ -91,18 +116,19 @@ class FavoriteViewSet(viewsets.ViewSet):
 
     @action(detail=True, methods=["post"])
     def add(self, request, pk=None):
+        """Add a film to the user's favorites."""
         try:
             film = Film.objects.get(pk=pk)
             request.user.favorites.add(film)
-            return Response({"detail": "Film ajouté aux favoris."}, status=200)
+            return Response({"detail": "Movie added to favorites"}, status=200)
         except Film.DoesNotExist:
-            return Response({"detail": "Film introuvable."}, status=404)
+            return Response({"detail": "Can't find Movie"}, status=404)
 
     @action(detail=True, methods=["post"])
     def remove(self, request, pk=None):
         try:
             film = Film.objects.get(pk=pk)
             request.user.favorites.remove(film)
-            return Response({"detail": "Film retiré des favoris."}, status=200)
+            return Response({"detail": "Movie deleted from favorites"}, status=200)
         except Film.DoesNotExist:
-            return Response({"detail": "Film introuvable."}, status=404)
+            return Response({"detail": "Can't find Movie"}, status=404)
