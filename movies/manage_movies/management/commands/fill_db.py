@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from manage_movies.models import Author, Film, Genre
-
-from movies.manage_movies.services.tmdb import TMDbClient
+from manage_movies.services.tmdb import TMDbClient
+from manage_movies.utils.utils import format_date
 
 
 class Command(BaseCommand):
@@ -22,6 +22,53 @@ class Command(BaseCommand):
             if created:
                 self.stdout.write(self.style.SUCCESS(f"Created genre: {genre.name}"))
         # Create Movies
-        # Create Actors
+        for movie_data in tmdb_client.fetch_popular_movies():
+            author_data = tmdb_client.fetch_movie_director(movie_data["id"])
+            author_details = (
+                tmdb_client.fetch_director_details(author_data["id"])
+                if author_data
+                else None
+            )
+            if not author_data:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"No director found for movie: {movie_data['title']}"
+                    )
+                )
+                continue
+            # Create Authors
+            author, created = Author.objects.get_or_create(
+                name=author_details["name"],
+                birth_date=format_date(author_details.get("birthday")),
+                death_date=format_date(author_details.get("deathday")),
+                biography=author_details.get("biography", ""),
+                place_of_birth=author_details.get("place_of_birth", None),
+                gender=author_details.get("gender", Author.GenderChoices.NOT_SPECIFIED),
+                tmdb_id=author_data["id"],
+            )
+            movie_detais = tmdb_client.fetch_movie_details(movie_data["id"])
+            if created:
+                self.stdout.write(self.style.SUCCESS(f"Created author: {author.name}"))
+            if movie_data.get("vote_average", 0) < 5:
+                rating = Film.RatingChoices.BAD
+            elif movie_data.get("vote_average", 0) < 7:
+                rating = Film.RatingChoices.AVERAGE
+            elif movie_data.get("vote_average", 0) < 8:
+                rating = Film.RatingChoices.GOOD
+            else:
+                rating = Film.RatingChoices.EXCELLENT
+
+            film, created = Film.objects.get_or_create(
+                title=movie_data["title"],
+                description=movie_data.get("overview", ""),
+                release_date=movie_data.get("release_date"),
+                adult=movie_data.get("adult", False),
+                author=author,
+                rating=rating,
+                status=movie_detais.get("status", Film.StatusChoices.PLANNED),
+                budget=movie_detais.get("budget", None),
+                box_office=movie_detais.get("revenue", None),
+                tmdb_id=movie_data.get("id", None),
+            )
 
         self.stdout.write(self.style.SUCCESS("Database filled with sample data"))

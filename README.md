@@ -31,3 +31,10 @@
    ```bash
    cd movies && poetry run pytest
    ```
+
+4. Create SuperUser:
+   ```bash
+   python manage.py create_superuser \
+      --username admin \
+      --password admin
+   ```
