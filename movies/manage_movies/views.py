@@ -7,7 +7,8 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 
 from .models import Author, Film, Rating, Spectator
-from .serializers import AuthorSerializer, FilmSerializer, SpectatorSerializer
+from .serializers import (AuthorSerializer, FilmSerializer, RatingSerializer,
+                          SpectatorSerializer)
 
 
 class SpectatorViewSet(viewsets.ModelViewSet):
@@ -60,6 +61,19 @@ class FilmViewSet(viewsets.ModelViewSet):
         elif source == "tmdb":
             qs = qs.filter(tmdb_id__isnull=False)
         return qs
+
+    @action(detail=True, methods=["post"], url_path="archive")
+    def archive(self, request, pk=None):
+        """
+        Archive a film by setting its archived field to True.
+        """
+        try:
+            film = self.get_object()
+            film.archived = True
+            film.save()
+            return Response({"detail": "Film archived successfully."}, status=200)
+        except Film.DoesNotExist:
+            return Response({"detail": "Film not found."}, status=404)
 
 
 class AuthorViewSet(viewsets.ModelViewSet):
@@ -132,3 +146,31 @@ class FavoriteViewSet(viewsets.ViewSet):
             return Response({"detail": "Movie deleted from favorites"}, status=200)
         except Film.DoesNotExist:
             return Response({"detail": "Can't find Movie"}, status=404)
+
+
+class RatingViewSet(viewsets.ModelViewSet):
+    queryset = Rating.objects.all()
+    serializer_class = RatingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        user = request.user
+        ct = data["content_type"]
+        oid = data["object_id"]
+        score = data["score"]
+        comment = data.get("comment", "")
+
+        rating, created = Rating.objects.update_or_create(
+            spectator=user,
+            content_type=ct,
+            object_id=oid,
+            defaults={"score": score, "comment": comment},
+        )
+
+        out_serializer = self.get_serializer(rating)
+        status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        return Response(out_serializer.data, status=status_code)

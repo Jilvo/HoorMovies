@@ -57,7 +57,6 @@ class Command(BaseCommand):
                 rating = Film.RatingChoices.GOOD
             else:
                 rating = Film.RatingChoices.EXCELLENT
-
             film, created = Film.objects.get_or_create(
                 title=movie_data["title"],
                 description=movie_data.get("overview", ""),
@@ -70,5 +69,10 @@ class Command(BaseCommand):
                 box_office=movie_detais.get("revenue", None),
                 tmdb_id=movie_data.get("id", None),
             )
+            genre_objs = [
+                Genre.objects.get(tmdb_id=genre_id)
+                for genre_id in movie_data.get("genre_ids", [])
+            ]
+            film.genres.set(genre_objs)
 
         self.stdout.write(self.style.SUCCESS("Database filled with sample data"))

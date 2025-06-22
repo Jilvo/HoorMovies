@@ -17,16 +17,6 @@ class FilmInline(admin.TabularInline):
     show_change_link = True
 
 
-class RatingInline(admin.TabularInline):
-    """Inline in the Film admin for related ratings."""
-
-    model = Rating
-    fk_name = "film"
-    fields = ("spectator", "score", "comment")
-    extra = 1
-    autocomplete_fields = ("spectator",)
-
-
 # ——— Filters ————————————————————————————————————————————————————————————————
 
 
@@ -106,7 +96,7 @@ class FilmAdmin(admin.ModelAdmin):
     search_fields = ("title", "description")
     list_filter = ("created_at", "rating", "status")
     date_hierarchy = "created_at"
-    inlines = [RatingInline]
+    # inlines = [RatingInline]
 
     def show_revenue_in_millions(self, obj):
         """Format the box office revenue in millions of dollars."""
@@ -126,3 +116,29 @@ class GenreAdmin(admin.ModelAdmin):
     list_display = ("name", "tmdb_id")
     search_fields = ("name",)
     list_filter = ("tmdb_id",)
+
+
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
+    list_display = (
+        "spectator",
+        "score",
+        "comment",
+        "target",
+        "created_at",
+    )
+    search_fields = ("spectator__username", "comment")
+    list_filter = ("score", "content_type")
+
+    def target(self, obj):
+        """
+        Display the title of the film or name of the author being rated.
+        """
+        if isinstance(obj.content_object, Film):
+            return obj.content_object.title
+        elif isinstance(obj.content_object, Author):
+            return obj.content_object.name
+        return str(obj.content_object)
+
+    target.short_description = "Noté"
+    target.admin_order_field = "content_type"
