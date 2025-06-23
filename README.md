@@ -5,6 +5,7 @@
 [![Postgres](https://img.shields.io/badge/Postgres-%23316192.svg?logo=postgresql&logoColor=white)](#)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)](#)
 [![CI](https://github.com/Jilvo/HoorMovies/actions/workflows/github-actions.yml/badge.svg)](https://github.com/Jilvo/HoorMovies/actions/workflows/github-actions.yml)
+[![Coverage](https://codecov.io/gh/Jilvo/HoorMovies/branch/main/graph/badge.svg)](https://codecov.io/gh/Jilvo/HoorMovies)
 
 A Django + Django REST Framework application for managing movies, authors and spectators, containerized with Docker Compose.
 

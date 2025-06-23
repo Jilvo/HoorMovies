@@ -34,7 +34,12 @@ jobs:
       - name: Run tests
         run: |
           cd movies
-          poetry run pytest --cov=. --cov-report=term --cov-report=term-missing
+          poetry run pytest --cov=. --cov-report=term --cov-report=term-missing --cov-report=xml:coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: movies/coverage.xml
 
       - name: Build Docker image
         run: |
