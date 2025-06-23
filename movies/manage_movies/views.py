@@ -7,8 +7,9 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 
 from .models import Author, Film, Rating, Spectator
-from .serializers import (AuthorSerializer, FilmSerializer, RatingSerializer,
-                          SpectatorSerializer)
+from .serializers import (AuthorDetailSerializer, AuthorSerializer,
+                          FilmDetailSerializer, FilmSerializer,
+                          RatingSerializer, SpectatorSerializer)
 
 
 class SpectatorViewSet(viewsets.ModelViewSet):
@@ -28,9 +29,13 @@ class FilmViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Film.objects.all()
-    serializer_class = FilmSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     http_method_names = ["get", "post", "patch", "delete"]
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return FilmDetailSerializer
+        return FilmSerializer
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -82,9 +87,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     http_method_names = ["get", "post", "patch", "delete"]
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return AuthorDetailSerializer
+        return AuthorSerializer
 
     def get_permissions(self):
         """Determine permissions based on the action being performed."""

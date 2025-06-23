@@ -55,6 +55,11 @@ Create a file named `.env` in the project root with at least:
 
 ```dotenv
 DJANGO_SECRET_KEY=your-secret-key
+POSTGRES_DB=""
+POSTGRES_USER=""
+POSTGRES_PASSWORD=""
+POSTGRES_HOST=""
+POSTGRES_PORT=""
 ```
 
 ## Installation & Startup
@@ -77,7 +82,7 @@ Copy the example or create your own:
    docker-compose up --build -d
    ```
 PostgreSQL and Django services will start
-API available at http://localhost:8000/api/
+API available at http://localhost:8000/
 
 ### Optional: Run Locally without Docker
    ```bash
@@ -119,52 +124,53 @@ OR DRF session login at /api-auth/login/ + cookie
 ### Authentication & JWT
 | Method | Endpoint              | Description                        |
 | ------ | --------------------- | ---------------------------------- |
-| POST   | `/api/auth/register/` | Register a new spectator           |
-| POST   | `/api/auth/login/`    | Obtain JWT access & refresh tokens |
-| POST   | `/api/auth/logout/`   | Blacklist a refresh token (logout) |
-| POST   | `/api/token/refresh/` | Refresh the access token           |
-| POST   | `/api/token/verify/`  | Verify token validity              |
+| POST   | `/auth/register/` | Register a new spectator           |
+| POST   | `/auth/login/`    | Obtain JWT access & refresh tokens |
+| POST   | `/auth/logout/`   | Blacklist a refresh token (logout) |
+| POST   | `/auth/token/refresh/` | Refresh the access token           |
+| POST   | `/auth/token/verify/`  | Verify token validity              |
 
 
 ### Authors
 | Method | Endpoint             | Description                                    |
 | ------ | -------------------- | ---------------------------------------------- |
-| GET    | `/api/authors/`      | List all authors                               |
-| GET    | `/api/authors/{id}/` | Retrieve a single author                       |
-| POST   | `/api/authors/`      | Create a new author (protected)                |
-| PUT    | `/api/authors/{id}/` | Update an author (protected)                   |
-| PATCH  | `/api/authors/{id}/` | Partial update (protected)                     |
-| DELETE | `/api/authors/{id}/` | Delete only if no films associated (protected) |
+| GET    | `/authors/`          | List all authors                               |
+| GET    | `/authors/{id}/`     | Retrieve a single author                       |
+| POST   | `/authors/`          | Create a new author (protected)                |
+| PUT    | `/authors/{id}/`     | Update an author (protected)                   |
+| PATCH  | `/authors/{id}/`     | Partial update (protected)                     |
+| DELETE | `/authors/{id}/`     | Delete only if no films associated (protected) |
 
 ### Films
 | Method | Endpoint                      | Description                                          |
 | ------ | ----------------------------- | ---------------------------------------------------- |
-| GET    | `/api/films/`                 | List all films                                       |
-| GET    | `/api/films/?status={status}` | Filter by status (planned, released, archived, etc.) |
-| GET    | `/api/films/?rating={rating}` | Filter by rating (bad, average, good, excellent)     |
-| GET    | `/api/films/{id}/`            | Retrieve a single film                               |
-| POST   | `/api/films/`                 | Create a new film (protected)                        |
-| PUT    | `/api/films/{id}/`            | Replace a film (protected)                           |
-| PATCH  | `/api/films/{id}/`            | Partial update (protected)                           |
-| DELETE | `/api/films/{id}/`            | Delete a film (protected)                            |
-| POST   | `/api/films/{id}/archive/`    | Archive a film (status → archived) (protected)       |
+| GET    | `/films/`                 | List all films                                       |
+| GET    | `/films/?status={status}` | Filter by status (planned, released, archived, etc.) |
+| GET    | `/films/?rating={rating}` | Filter by rating (bad, average, good, excellent)     |
+| GET    | `/films/?source={source}` | Filter by source (admin,tmdb)     |
+| GET    | `/films/{id}/`            | Retrieve a single film                               |
+| POST   | `/films/`                 | Create a new film (protected)                        |
+| PUT    | `/films/{id}/`            | Replace a film (protected)                           |
+| PATCH  | `/films/{id}/`            | Partial update (protected)                           |
+| DELETE | `/films/{id}/`            | Delete a film (protected)                            |
+| POST   | `/films/{id}/archive/`    | Archive a film (status → archived) (protected)       |
 
 ### Spectators
 | Method | Endpoint                | Description                    |
 | ------ | ----------------------- | ------------------------------ |
-| GET    | `/api/spectators/`      | List all spectators            |
-| GET    | `/api/spectators/{id}/` | Retrieve a spectator           |
-| POST   | `/api/spectators/`      | Create a spectator (protected) |
-| PUT    | `/api/spectators/{id}/` | Update a spectator (protected) |
-| PATCH  | `/api/spectators/{id}/` | Partial update (protected)     |
-| DELETE | `/api/spectators/{id}/` | Delete a spectator (protected) |
+| GET    | `/spectators/`      | List all spectators            |
+| GET    | `/spectators/{id}/` | Retrieve a spectator           |
+| POST   | `/spectators/`      | Create a spectator (protected) |
+| PUT    | `/spectators/{id}/` | Update a spectator (protected) |
+| PATCH  | `/spectators/{id}/` | Partial update (protected)     |
+| DELETE | `/spectators/{id}/` | Delete a spectator (protected) |
 
 ### Favorites
 | Method | Endpoint                           | Description                            |
 | ------ | ---------------------------------- | -------------------------------------- |
-| GET    | `/api/favorites/`                  | List your favorite films (protected)   |
-| POST   | `/api/favorites/{film_id}/add/`    | Add film to favorites (protected)      |
-| POST   | `/api/favorites/{film_id}/remove/` | Remove film from favorites (protected) |
+| GET    | `/favorites/`                  | List your favorite films (protected)   |
+| POST   | `/favorites/{film_id}/add/`    | Add film to favorites (protected)      |
+| POST   | `/favorites/{film_id}/remove/` | Remove film from favorites (protected) |
 
 ### Ratings
 
@@ -172,7 +178,7 @@ OR DRF session login at /api-auth/login/ + cookie
 | ------ | ------------------------- | --------------------------------------------------------------- |
 | GET    | `/api/ratings/`           | List all ratings (requires authentication)                      |
 | GET    | `/api/ratings/{id}/`      | Retrieve a single rating by its ID                              |
-| POST   | `/api/ratings/`           | Create or update a rating for a film or an author (upserts)     |
+| POST   | `/api/ratings/`           | Create or update a rating for a "film" or an "author" (upserts)     |
 | PUT    | `/api/ratings/{id}/`      | Replace an existing rating                                      |
 | PATCH  | `/api/ratings/{id}/`      | Partially update an existing rating                             |
 | DELETE | `/api/ratings/{id}/`      | Delete a rating                                                 |
@@ -185,7 +191,7 @@ When you `POST` to `/api/ratings/`, if you’ve already rated the same target (s
    -H "Authorization: Bearer <ACCESS_TOKEN>" \
    -H "Content-Type: application/json" \
    -d '{
-      "content_type": "film",
+      "content_type": "film", 
       "object_id": 42,
       "score": 5,
       "comment": "Un chef-d’œuvre !"

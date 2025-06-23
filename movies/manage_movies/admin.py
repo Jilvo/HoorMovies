@@ -1,6 +1,8 @@
 from datetime import date
 
 from django.contrib import admin
+from django.contrib.contenttypes.admin import GenericTabularInline
+from django.contrib.contenttypes.models import ContentType
 from django.utils.html import format_html
 
 from .models import Author, Film, Genre, Rating
@@ -15,6 +17,23 @@ class FilmInline(admin.TabularInline):
     fields = ("title", "release_date", "status")
     extra = 0
     show_change_link = True
+
+
+class RatingInline(GenericTabularInline):
+    """
+    Inline for displaying ratings related to a film in the Film admin.
+    """
+
+    model = Rating
+    fields = ("spectator", "score", "comment")
+    readonly_fields = ("created_at",)
+    extra = 0
+    show_change_link = True
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        film_type = ContentType.objects.get_for_model(Film)
+        return qs.filter(content_type=film_type)
 
 
 # ——— Filters ————————————————————————————————————————————————————————————————
@@ -96,7 +115,7 @@ class FilmAdmin(admin.ModelAdmin):
     search_fields = ("title", "description")
     list_filter = ("created_at", "rating", "status")
     date_hierarchy = "created_at"
-    # inlines = [RatingInline]
+    inlines = [RatingInline]
 
     def show_revenue_in_millions(self, obj):
         """Format the box office revenue in millions of dollars."""
