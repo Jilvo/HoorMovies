@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from manage_movies.models import Author, Film, Genre
-from manage_movies.services.tmdb import TMDbClient
+from manage_movies.services.tmdb_client import TMDbClient
 from manage_movies.utils.utils import format_date
 
 

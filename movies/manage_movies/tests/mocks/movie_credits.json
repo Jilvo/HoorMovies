@@ -1,0 +1,11 @@
+{
+  "id": 456,
+  "cast": [
+    { "cast_id": 1, "name": "Actor One", "character": "Hero" },
+    { "cast_id": 2, "name": "Actor Two", "character": "Sidekick" }
+  ],
+  "crew": [
+    { "id": 10, "name": "Jane Doe", "job": "Director" },
+    { "id": 11, "name": "John Smith", "job": "Producer" }
+  ]
+}

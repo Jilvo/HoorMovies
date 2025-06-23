@@ -1,0 +1,19 @@
+{
+  "page": 2,
+  "results": [
+    {
+      "id": 101,
+      "title": "Upcoming Movie A",
+      "overview": "Overview of upcoming A",
+      "release_date": "2025-10-01"
+    },
+    {
+      "id": 102,
+      "title": "Upcoming Movie B",
+      "overview": "Overview of upcoming B",
+      "release_date": "2025-11-15"
+    }
+  ],
+  "total_pages": 10,
+  "total_results": 200
+}

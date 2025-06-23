@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          cd movies
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
+
+      - name: Lint
+        run: |
+          cd movies
+          poetry run black . && poetry run isort .
+
+      - name: Run tests
+        run: |
+          cd movies
+          poetry run pytest --cov=. --cov-report=term --cov-report=term-missing
+
+      - name: Build Docker image
+        run: |
+          cd movies
+          docker-compose up --build

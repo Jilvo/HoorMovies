@@ -1,0 +1,17 @@
+{
+  "page": 1,
+  "results": [
+    {
+      "id": 1,
+      "title": "Movie A",
+      "overview": "Overview A"
+    },
+    {
+      "id": 2,
+      "title": "Movie B",
+      "overview": "Overview B"
+    }
+  ],
+  "total_pages": 1,
+  "total_results": 2
+}

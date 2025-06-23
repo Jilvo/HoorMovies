@@ -92,6 +92,14 @@ API available at http://localhost:8000/api/
    cd movies
    poetry run pytest
    ```
+### Coverage
+   ```bash
+   poetry run pytest \
+  --cov=. \
+  --cov-report=term \
+  --cov-report=term-missing
+
+   ```
 
 ## Creating a Superuser
 From inside the Docker container or locally:
