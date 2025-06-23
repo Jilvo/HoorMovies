@@ -89,14 +89,15 @@ def test_fetch_movie_director(monkeypatch, client):
 
     monkeypatch.setattr(requests, "get", fake_get)
 
-    director = client.fetch_movie_director(movie_id=456)
+    director = client.fetch_movie_directors(movie_id=456)
     assert director is not None
-    assert director["job"] == "Director"
+    assert len(director) == 1
+    assert director[0] == {"id": 10, "job": "Director", "name": "Jane Doe"}
 
     monkeypatch.setattr(
         requests, "get", lambda url, params: DummyResponse({"crew": []})
     )
-    assert client.fetch_movie_director(movie_id=456) is None
+    assert client.fetch_movie_directors(movie_id=456) is None
 
 
 def test_fetch_director_details(monkeypatch, client):

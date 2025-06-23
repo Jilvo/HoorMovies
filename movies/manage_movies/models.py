@@ -45,7 +45,7 @@ class Film(models.Model):
     description = models.TextField()
     release_date = models.DateField()
     adult = models.BooleanField(default=False)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="films")
+    authors = models.ManyToManyField(Author, related_name="films")
     rating = models.CharField(
         max_length=10, choices=RatingChoices.choices, default=RatingChoices.GOOD
     )

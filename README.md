@@ -176,12 +176,12 @@ OR DRF session login at /api-auth/login/ + cookie
 
 | Method | Endpoint                  | Description                                                     |
 | ------ | ------------------------- | --------------------------------------------------------------- |
-| GET    | `/api/ratings/`           | List all ratings (requires authentication)                      |
-| GET    | `/api/ratings/{id}/`      | Retrieve a single rating by its ID                              |
-| POST   | `/api/ratings/`           | Create or update a rating for a "film" or an "author" (upserts)     |
-| PUT    | `/api/ratings/{id}/`      | Replace an existing rating                                      |
-| PATCH  | `/api/ratings/{id}/`      | Partially update an existing rating                             |
-| DELETE | `/api/ratings/{id}/`      | Delete a rating                                                 |
+| GET    | `/ratings/`           | List all ratings (requires authentication)                      |
+| GET    | `/ratings/{id}/`      | Retrieve a single rating by its ID                              |
+| POST   | `/ratings/`           | Create or update a rating for a "film" or an "author" (upserts)     |
+| PUT    | `/ratings/{id}/`      | Replace an existing rating                                      |
+| PATCH  | `/ratings/{id}/`      | Partially update an existing rating                             |
+| DELETE | `/ratings/{id}/`      | Delete a rating                                                 |
 
 When you `POST` to `/api/ratings/`, if you’ve already rated the same target (same spectator, content_type & object_id), your rating will be updated; otherwise a new one is created.
 

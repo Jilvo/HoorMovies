@@ -11,11 +11,14 @@ from .models import Author, Film, Genre, Rating
 
 
 class FilmInline(admin.TabularInline):
-    """Inline in the Author admin for related films."""
+    """
+    Inline for displaying films related to an author in the Author admin.
+    """
 
-    model = Film
-    fields = ("title", "release_date", "status")
+    model = Film.authors.through
     extra = 0
+    verbose_name = "Film"
+    verbose_name_plural = "Films"
     show_change_link = True
 
 
@@ -34,6 +37,14 @@ class RatingInline(GenericTabularInline):
         qs = super().get_queryset(request)
         film_type = ContentType.objects.get_for_model(Film)
         return qs.filter(content_type=film_type)
+
+
+class AuthorInline(admin.TabularInline):
+    model = Film.authors.through
+    extra = 0
+    verbose_name = "Author"
+    verbose_name_plural = "Authors"
+    show_change_link = True
 
 
 # ——— Filters ————————————————————————————————————————————————————————————————
@@ -115,7 +126,8 @@ class FilmAdmin(admin.ModelAdmin):
     search_fields = ("title", "description")
     list_filter = ("created_at", "rating", "status")
     date_hierarchy = "created_at"
-    inlines = [RatingInline]
+    inlines = [AuthorInline, RatingInline]
+    exclude = ("authors",)
 
     def show_revenue_in_millions(self, obj):
         """Format the box office revenue in millions of dollars."""

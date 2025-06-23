@@ -44,11 +44,11 @@ class TMDbClient:
         """Fetch detailed information about a movie."""
         return self._get(f"movie/{movie_id}")
 
-    def fetch_movie_director(self, movie_id: int) -> Optional[Dict[str, Any]]:
-        """Fetch the director of a movie."""
+    def fetch_movie_directors(self, movie_id: int) -> Optional[Dict[str, Any]]:
+        """Fetch the directors of a movie."""
         credits = self._get(f"movie/{movie_id}/credits")
         directors = [c for c in credits.get("crew", []) if c["job"] == "Director"]
-        return directors[0] if directors else None
+        return directors if directors else None
 
     def fetch_director_details(self, director_id: int) -> Dict[str, Any]:
         """Fetch detailed information about a director."""
