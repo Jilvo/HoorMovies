@@ -4,6 +4,7 @@
 ![Django](https://img.shields.io/badge/django-5.2.3-darkgreen?logo=django)
 [![Postgres](https://img.shields.io/badge/Postgres-%23316192.svg?logo=postgresql&logoColor=white)](#)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)](#)
+[![CI](https://github.com/Jilvo/HoorMovies/actions/workflows/github-actions.yml/badge.svg)](https://github.com/Jilvo/HoorMovies/actions/workflows/github-actions.yml)
 
 A Django + Django REST Framework application for managing movies, authors and spectators, containerized with Docker Compose.
 
@@ -183,11 +184,11 @@ OR DRF session login at /api-auth/login/ + cookie
 | PATCH  | `/ratings/{id}/`      | Partially update an existing rating                             |
 | DELETE | `/ratings/{id}/`      | Delete a rating                                                 |
 
-When you `POST` to `/api/ratings/`, if you’ve already rated the same target (same spectator, content_type & object_id), your rating will be updated; otherwise a new one is created.
+When you `POST` to `/ratings/`, if you’ve already rated the same target (same spectator, content_type & object_id), your rating will be updated; otherwise a new one is created.
 
 #### Example: Rate a Film
    ```bash
-   curl -X POST http://localhost:8000/api/ratings/ \
+   curl -X POST http://localhost:8000/ratings/ \
    -H "Authorization: Bearer <ACCESS_TOKEN>" \
    -H "Content-Type: application/json" \
    -d '{
