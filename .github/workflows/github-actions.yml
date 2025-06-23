@@ -24,7 +24,7 @@ jobs:
           cd movies
           python -m pip install --upgrade pip
           pip install poetry
-          poetry install
+          poetry install --no-root
 
       - name: Lint
         run: |
