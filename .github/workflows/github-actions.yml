@@ -38,7 +38,9 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
+        continue-on-error: true
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: movies/coverage.xml
 
       - name: Build Docker image
