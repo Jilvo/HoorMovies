@@ -39,4 +39,6 @@ jobs:
       - name: Build Docker image
         run: |
           cd movies
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
           docker-compose up --build
