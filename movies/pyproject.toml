@@ -27,7 +27,6 @@ pylint = "^3.3.7"
 pytest-cov = "^6.2.1"
 
 [tool.poetry]
-packages = [{include = "movies"}]
 
 
 [build-system]
